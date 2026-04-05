@@ -1,4 +1,10 @@
+#include "pch.h"
 #include "sphere.hpp"
+#include "utils.hpp"
+
+Sphere::Sphere() : density(0.05f), color(PURPLE), center({ 0, 0, -10 }), radius(5.f) {}
+
+Sphere::Sphere(float density, CustomColor color, Vector3 center, float radius) : density(density), color(color), center(center), radius(radius) {}
 
 // 1. Sphere equation: |p - c|^2 = r^2 where;
 // - p is the intersection point on sphere
@@ -12,7 +18,7 @@
 // 4. Substitute p into the equation in 2. and expand to get (B · B)t^2 + 2(B · OC)t + (OC · OC - r^2) = 0 where
 // - OC is A - c (origin of ray to center of sphere)
 // 5. Solve the quadratic equation using modified equation for improved stability, preventing loss of significance
-bool Sphere::intersect(const Ray& ray, float& t0, float& t1) {
+bool Sphere::intersect(const Ray& ray, float& t0, float& t1) const {
 	Vector3 oc = Vector3Subtract(ray.position, this->center);
 
 	float a = Vector3DotProduct(ray.direction, ray.direction);
@@ -37,7 +43,7 @@ bool Sphere::intersect(const Ray& ray, float& t0, float& t1) {
     return true;
 }
 
-Color Sphere::computeVolumeColor(const Color& bgColor, const float t0, const float t1) {
-	float distance = t1 - t0;
+CustomColor Sphere::computeVolumeColor(const CustomColor& bgColor, float t0, float t1) const {
+	const float distance = t1 - t0;
 	return calculateBGColorThroughVolume(bgColor, this->color, this->density, distance);
 }

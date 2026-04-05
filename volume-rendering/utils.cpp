@@ -1,15 +1,11 @@
-﻿#include "volume-rendering.h"
+﻿#include "pch.h"
+#include "utils.hpp"
 
 // density: absorption coefficient of volume
 // distance: thickness of volume
-Color calculateBGColorThroughVolume(Color bgColor, Color volumeColor, float density, float distance) {
+CustomColor calculateBGColorThroughVolume(CustomColor bgColor, CustomColor volumeColor, float density, float distance) {
     float transmittance = exp(-distance * density);
-	Color newColor = {
-        (unsigned char)(bgColor.r * transmittance + volumeColor.r * (1 - transmittance)),
-        (unsigned char)(bgColor.g * transmittance + volumeColor.g * (1 - transmittance)),
-        (unsigned char)(bgColor.b * transmittance + volumeColor.b * (1 - transmittance)),
-        255
-    };
+    CustomColor newColor = bgColor * transmittance + volumeColor * (1 - transmittance);
     return newColor;
 }
 

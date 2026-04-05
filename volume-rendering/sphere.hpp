@@ -1,14 +1,19 @@
 #pragma once
+#pragma once
 
-#include "volume-rendering.h"
+#include "raymath.h"
+#include "custom-color.hpp"
 
 class Sphere {
 	public:
-		bool intersect(const Ray& ray, float& t0, float& t1);
-		Color computeVolumeColor(const Color& bgColor, const float t0, const float t1);
+		Sphere();
+		Sphere(float density, CustomColor color, Vector3 center, float radius);
 
-		float density{ 0.03 };
-		Color color{ PURPLE };
-		Vector3 center{ 0, 0, -10 };
-		float radius{ 5 };
+		bool intersect(const Ray& ray, float& t0, float& t1) const;
+		CustomColor computeVolumeColor(const CustomColor& bgColor, float t0, float t1) const;
+
+		float density;
+		CustomColor color;
+		Vector3 center;
+		float radius;
 };

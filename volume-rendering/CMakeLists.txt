@@ -3,7 +3,7 @@
 #
 
 # Add source to this project's executable.
-add_executable (volume-rendering "volume-rendering.cpp" "volume-rendering.h" "sphere.cpp" "utils.cpp")
+add_executable (volume-rendering "main.cpp" "pch.h" "sphere.cpp" "utils.cpp" "ray-march.cpp" "custom-color.cpp" "point-light.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET volume-rendering PROPERTY CXX_STANDARD 20)
