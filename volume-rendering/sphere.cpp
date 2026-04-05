@@ -2,15 +2,21 @@
 #include "sphere.hpp"
 #include "utils.hpp"
 
-Sphere::Sphere() : absorptionCoeff(0.1f), scatteringCoeff(0.1f), color(PURPLE), center({ 0, 0, -10 }), radius(5.f) {}
+Sphere::Sphere() :
+	absorptionCoeff(0.1f),
+	scatteringCoeff(0.1f),
+	density(1.f),
+	color(PURPLE),
+	center({ 0, 0, -10 }),
+	radius(5.f) {}
 
-Sphere::Sphere(
-	float absorptionCoeff,
-	float scatteringCoeff,
-	CustomColor color,
-	Vector3 center,
-	float radius
-) : absorptionCoeff(absorptionCoeff), scatteringCoeff(scatteringCoeff), color(color), center(center), radius(radius) {}
+Sphere::Sphere(float absorptionCoeff, float scatteringCoeff, float density, CustomColor color, Vector3 center, float radius) :
+	absorptionCoeff(absorptionCoeff),
+	scatteringCoeff(scatteringCoeff),
+	density(density),
+	color(color),
+	center(center),
+	radius(radius) {}
 
 // 1. Sphere equation: |p - c|^2 = r^2 where;
 // - p is the intersection point on sphere

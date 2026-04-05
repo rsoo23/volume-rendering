@@ -14,7 +14,7 @@ CustomColor rayMarchBackward(const CustomColor& bgColor, const float stepSize, c
 	const int steps = (int)((t1 - t0) / stepSize);
 	CustomColor finalTransmittedLightSourceColor;
 
-	const float extinctionCoeff = sphere->absorptionCoeff + sphere->scatteringCoeff;
+	const float extinctionCoeff = (sphere->absorptionCoeff + sphere->scatteringCoeff) * sphere->density;
 
 	// transmittance per step in the volume
 	const float stepVolTransmittance = exp(-stepSize * extinctionCoeff);
@@ -35,7 +35,7 @@ CustomColor rayMarchBackward(const CustomColor& bgColor, const float stepSize, c
 			// transmittance through the volume from the lightT1 (point where the light ray intersects the sphere) and the light ray origin
 			const float volTransmittance = exp(-lightT1 * extinctionCoeff);
 			// color of the transmitted / attenuated light that hits the light ray origin
-			const CustomColor transmittedLightSourceColor = pLight->color * stepSize * volTransmittance * sphere->scatteringCoeff;
+			const CustomColor transmittedLightSourceColor = pLight->color * stepSize * volTransmittance * sphere->scatteringCoeff * sphere->density;
 
 			finalTransmittedLightSourceColor += transmittedLightSourceColor;
 		}
@@ -49,7 +49,7 @@ CustomColor rayMarchForward(const CustomColor& bgColor, const float stepSize, co
 	const int steps = (int)((t1 - t0) / stepSize);
 	CustomColor finalTransmittedLightSourceColor;
 
-	const float extinctionCoeff = sphere->absorptionCoeff + sphere->scatteringCoeff;
+	const float extinctionCoeff = (sphere->absorptionCoeff + sphere->scatteringCoeff) * sphere->density;
 
 	// transmittance per step in the volume
 	const float stepVolTransmittance = exp(-stepSize * extinctionCoeff);
@@ -70,7 +70,7 @@ CustomColor rayMarchForward(const CustomColor& bgColor, const float stepSize, co
 			// transmittance through the volume from the lightT1 (point where the light ray intersects the sphere) and the light ray origin
 			const float volTransmittance = exp(-lightT1 * extinctionCoeff);
 			// color of the transmitted / attenuated light that hits the light ray origin
-			const CustomColor transmittedLightSourceColor = pLight->color * stepSize * volTransmittance * sphere->scatteringCoeff;
+			const CustomColor transmittedLightSourceColor = pLight->color * stepSize * volTransmittance * sphere->scatteringCoeff * sphere->density;
 
 			finalTransmittedLightSourceColor += (transmittedLightSourceColor * accumulatedStepVolTransmittance);
 		}

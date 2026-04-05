@@ -15,7 +15,8 @@ int main()
     CustomColor bgColor(WHITE);
 
     constexpr float sphereAbsorptionCoeff = 0.1;
-    constexpr float sphereScatteringCoeff = 0.4;
+    constexpr float sphereScatteringCoeff = 0.9;
+    constexpr float sphereDensity = 0.9;
     CustomColor sphereColor(BLUE);
     const Vector3 spherePos = { 0, 0, -20 };
     constexpr float sphereRadius = 10.f;
@@ -25,7 +26,7 @@ int main()
 
     Vector3 rayOrigin = { 0, 0, 0 };
 
-    std::unique_ptr<Sphere> sphere(new Sphere(sphereAbsorptionCoeff, sphereScatteringCoeff, sphereColor, spherePos, sphereRadius));
+    std::unique_ptr<Sphere> sphere(new Sphere(sphereAbsorptionCoeff, sphereScatteringCoeff, sphereDensity, sphereColor, spherePos, sphereRadius));
     std::unique_ptr<PointLight> pLight(new PointLight(pointLightColor, pointLightPos));
 
     const float stepSize = 0.05f;
