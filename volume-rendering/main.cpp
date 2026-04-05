@@ -14,20 +14,21 @@ int main()
 
     CustomColor bgColor(WHITE);
 
-    constexpr float sphereDensity = 0.8;
+    constexpr float sphereAbsorptionCoeff = 0.1;
+    constexpr float sphereScatteringCoeff = 0.4;
     CustomColor sphereColor(BLUE);
     const Vector3 spherePos = { 0, 0, -20 };
-    constexpr float sphereRadius = 15.f;
+    constexpr float sphereRadius = 10.f;
 
     CustomColor pointLightColor(PURPLE);
-    const Vector3 pointLightPos = { 0, 15, -20 };
+    const Vector3 pointLightPos = { 0, 5, -20 };
 
     Vector3 rayOrigin = { 0, 0, 0 };
 
-    std::unique_ptr<Sphere> sphere(new Sphere(sphereDensity, sphereColor, spherePos, sphereRadius));
+    std::unique_ptr<Sphere> sphere(new Sphere(sphereAbsorptionCoeff, sphereScatteringCoeff, sphereColor, spherePos, sphereRadius));
     std::unique_ptr<PointLight> pLight(new PointLight(pointLightColor, pointLightPos));
 
-    const float stepSize = 0.01f;
+    const float stepSize = 0.05f;
 
     // 1. Initialize window
     InitWindow(screenWidth, screenHeight, "Volume Rendering");

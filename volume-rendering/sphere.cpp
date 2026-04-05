@@ -2,9 +2,15 @@
 #include "sphere.hpp"
 #include "utils.hpp"
 
-Sphere::Sphere() : density(0.05f), color(PURPLE), center({ 0, 0, -10 }), radius(5.f) {}
+Sphere::Sphere() : absorptionCoeff(0.1f), scatteringCoeff(0.1f), color(PURPLE), center({ 0, 0, -10 }), radius(5.f) {}
 
-Sphere::Sphere(float density, CustomColor color, Vector3 center, float radius) : density(density), color(color), center(center), radius(radius) {}
+Sphere::Sphere(
+	float absorptionCoeff,
+	float scatteringCoeff,
+	CustomColor color,
+	Vector3 center,
+	float radius
+) : absorptionCoeff(absorptionCoeff), scatteringCoeff(scatteringCoeff), color(color), center(center), radius(radius) {}
 
 // 1. Sphere equation: |p - c|^2 = r^2 where;
 // - p is the intersection point on sphere
@@ -45,5 +51,5 @@ bool Sphere::intersect(const Ray& ray, float& t0, float& t1) const {
 
 CustomColor Sphere::computeVolumeColor(const CustomColor& bgColor, float t0, float t1) const {
 	const float distance = t1 - t0;
-	return calculateBGColorThroughVolume(bgColor, this->color, this->density, distance);
+	return calculateBGColorThroughVolume(bgColor, this->color, this->absorptionCoeff, distance);
 }

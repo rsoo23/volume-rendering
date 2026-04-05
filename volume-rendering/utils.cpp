@@ -1,10 +1,10 @@
 ﻿#include "pch.h"
 #include "utils.hpp"
 
-// density: absorption coefficient of volume
+// absorptionCoeff: absorption coefficient of volume
 // distance: thickness of volume
-CustomColor calculateBGColorThroughVolume(CustomColor bgColor, CustomColor volumeColor, float density, float distance) {
-    float transmittance = exp(-distance * density);
+CustomColor calculateBGColorThroughVolume(CustomColor bgColor, CustomColor volumeColor, float absorptionCoeff, float distance) {
+    float transmittance = exp(-distance * absorptionCoeff);
     CustomColor newColor = bgColor * transmittance + volumeColor * (1 - transmittance);
     return newColor;
 }
