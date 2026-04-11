@@ -78,6 +78,9 @@ CustomColor rayMarchForward(const CustomColor& bgColor, const float stepSize, co
 
 	const Vector3 lightRayDir = { 0, 0, 1 };
 
+	// the higher the d value, the more often the ray marching will break
+	const int d = 10;
+
 	for (int step = 0; step < steps; step++) {
 		// t value of the light ray origin (steps start from t1 and go forward)
 		const float lightRayOriginT = t0 + (step + rng.uniform<float>(0.f, 1.f)) * stepSize;
@@ -97,6 +100,16 @@ CustomColor rayMarchForward(const CustomColor& bgColor, const float stepSize, co
 			const CustomColor transmittedLightSourceColor = pLight->color * stepSize * volTransmittance * sphere->scatteringCoeff * sphere->density * hg;
 
 			finalTransmittedLightSourceColor += (transmittedLightSourceColor * accumulatedStepVolTransmittance);
+		}
+
+		// Russian roulette method (optimization)
+		// If the random number is large than 1/d break, else compensate for the lost light packets by * d
+		if (accumulatedStepVolTransmittance < 1e-3) {
+			if (rng.uniform<float>(0.f, 1.f) > 1 / d) {
+				break;
+			} else {
+				accumulatedStepVolTransmittance *= d;
+			}
 		}
 	}
 
