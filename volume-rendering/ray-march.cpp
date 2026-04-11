@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "point-light.hpp"
 #include "sphere.hpp"
+#include "random-number-generator.hpp"
 
 // 1 / (4 * PI): represents the phase function where all out-scattered directions are equally likely to be chosen
 // g (-1 <= g <= 1): the asymmetry factor controls whether light is out-scattered in the forward / backward direction
@@ -62,7 +63,7 @@ CustomColor rayMarchBackward(const CustomColor& bgColor, const float stepSize, c
 	return finalBGColor + finalTransmittedLightSourceColor;
 }
 
-CustomColor rayMarchForward(const CustomColor& bgColor, const float stepSize, const float t0, const float t1, const Ray& ray, PointLight* pLight, Sphere* sphere) {
+CustomColor rayMarchForward(const CustomColor& bgColor, const float stepSize, const float t0, const float t1, const Ray& ray, PointLight* pLight, Sphere* sphere, RandomNumberGenerator& rng) {
 	const int steps = (int)((t1 - t0) / stepSize);
 	CustomColor finalTransmittedLightSourceColor;
 
@@ -79,7 +80,7 @@ CustomColor rayMarchForward(const CustomColor& bgColor, const float stepSize, co
 
 	for (int step = 0; step < steps; step++) {
 		// t value of the light ray origin (steps start from t1 and go forward)
-		const float lightRayOriginT = t0 + (step * stepSize) + (0.5f * stepSize);
+		const float lightRayOriginT = t0 + (step + rng.uniform<float>(0.f, 1.f)) * stepSize;
 		const Vector3 lightRayOrigin = Vector3Add(ray.position, Vector3Scale(ray.direction, lightRayOriginT));
 		const Ray lightRay = { lightRayOrigin, lightRayDir };
 		float lightT0, lightT1;

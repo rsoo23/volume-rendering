@@ -4,6 +4,7 @@
 #include "point-light.hpp"
 #include "utils.hpp"
 #include "ray-march.hpp"
+#include "random-number-generator.hpp"
 
 int main()
 {
@@ -30,6 +31,7 @@ int main()
     std::unique_ptr<PointLight> pLight(new PointLight(pointLightColor, pointLightPos));
 
     const float stepSize = 0.05f;
+    RandomNumberGenerator rng;
 
     // 1. Initialize window
     InitWindow(screenWidth, screenHeight, "Volume Rendering");
@@ -47,8 +49,8 @@ int main()
 
             if (sphere->intersect(ray, t0, t1)) {
                 //finalColor = sphere->computeVolumeColor(bgColor, t0, t1);
-                finalColor = rayMarchBackward(bgColor, stepSize, t0, t1, ray, pLight.get(), sphere.get());
-                //finalColor = rayMarchForward(bgColor, stepSize, t0, t1, ray, pLight.get(), sphere.get());
+                //finalColor = rayMarchBackward(bgColor, stepSize, t0, t1, ray, pLight.get(), sphere.get());
+                finalColor = rayMarchForward(bgColor, stepSize, t0, t1, ray, pLight.get(), sphere.get(), rng);
             } else {
                 finalColor = bgColor;
             }
