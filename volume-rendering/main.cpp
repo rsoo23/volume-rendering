@@ -5,6 +5,7 @@
 #include "utils.hpp"
 #include "ray-march.hpp"
 #include "random-number-generator.hpp"
+#include "timer.hpp"
 
 int main()
 {
@@ -33,6 +34,7 @@ int main()
     const float stepSize = 0.05f;
     RandomNumberGenerator rng;
 
+    Timer timer;
     // 1. Initialize window
     InitWindow(screenWidth, screenHeight, "Volume Rendering");
 
@@ -58,6 +60,7 @@ int main()
             ImageDrawPixel(&image, col, row, finalColor.getColor());
 		}
     }
+    timer.stop();
 
     Texture2D texture = LoadTextureFromImage(image);
     UnloadImage(image);
