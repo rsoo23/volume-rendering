@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "timer.hpp"
+#include "Timer.hpp"
 
 Timer::Timer() {
     startTimepoint = std::chrono::high_resolution_clock::now();

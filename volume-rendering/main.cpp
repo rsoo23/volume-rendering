@@ -1,11 +1,11 @@
 ﻿#include "pch.h"
-#include "custom-color.hpp"
-#include "sphere.hpp"
-#include "point-light.hpp"
-#include "utils.hpp"
-#include "ray-march.hpp"
-#include "random-number-generator.hpp"
-#include "timer.hpp"
+#include "CustomColor.hpp"
+#include "Sphere.hpp"
+#include "PointLight.hpp"
+#include "Utils.hpp"
+#include "RayMarch.hpp"
+#include "RandomNumberGenerator.hpp"
+#include "Timer.hpp"
 
 int main()
 {
@@ -14,16 +14,17 @@ int main()
     constexpr int screenMidX = screenWidth * 0.5;
     constexpr int screenMidY = screenHeight * 0.5;
 
-    CustomColor bgColor(WHITE);
+    CustomColor bgColor(BLACK);
 
-    constexpr float sphereAbsorptionCoeff = 0.1;
-    constexpr float sphereScatteringCoeff = 0.9;
-    constexpr float sphereDensity = 0.9;
+    constexpr float sphereAbsorptionCoeff = 0.3;
+    constexpr float sphereScatteringCoeff = 0.3;
+    constexpr float sphereDensity = 0.05f;
+ 
     CustomColor sphereColor(BLUE);
     const Vector3 spherePos = { 0, 0, -20 };
     constexpr float sphereRadius = 10.f;
 
-    CustomColor pointLightColor(PURPLE);
+    CustomColor pointLightColor({ 20, 20, 20, 1 });
     const Vector3 pointLightPos = { 0, 5, -20 };
 
     Vector3 rayOrigin = { 0, 0, 0 };
@@ -31,10 +32,12 @@ int main()
     std::unique_ptr<Sphere> sphere(new Sphere(sphereAbsorptionCoeff, sphereScatteringCoeff, sphereDensity, sphereColor, spherePos, sphereRadius));
     std::unique_ptr<PointLight> pLight(new PointLight(pointLightColor, pointLightPos));
 
-    const float stepSize = 0.05f;
+    const float stepSize = 0.5f;
+
     RandomNumberGenerator rng;
 
     Timer timer;
+
     // 1. Initialize window
     InitWindow(screenWidth, screenHeight, "Volume Rendering");
 
@@ -56,8 +59,8 @@ int main()
             } else {
                 finalColor = bgColor;
             }
-            
-            ImageDrawPixel(&image, col, row, finalColor.getColor());
+
+			ImageDrawPixel(&image, col, row, finalColor.getColor());
 		}
     }
     timer.stop();

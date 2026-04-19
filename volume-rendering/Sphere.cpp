@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "sphere.hpp"
-#include "utils.hpp"
+#include "Sphere.hpp"
+#include "Utils.hpp"
 
 Sphere::Sphere() :
 	absorptionCoeff(0.1f),

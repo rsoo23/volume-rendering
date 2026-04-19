@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "point-light.hpp"
-#include "sphere.hpp"
-#include "random-number-generator.hpp"
-#include "noise.hpp"
+#include "PointLight.hpp"
+#include "Sphere.hpp"
+#include "RandomNumberGenerator.hpp"
+#include "Noise.hpp"
 
 static float smoothStep(float low, float high, float x) {
 	float t = std::clamp((x - low) / (high - low), 0.f, 1.f);

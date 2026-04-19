@@ -1,4 +1,4 @@
 #include "pch.h"
-#include "random-number-generator.hpp"
+#include "RandomNumberGenerator.hpp"
 
 RandomNumberGenerator::RandomNumberGenerator() : mersenneTwisterEngine(std::random_device{}()) {}

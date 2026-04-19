@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "point-light.hpp"
+#include "PointLight.hpp"
 
 PointLight::PointLight() : color(WHITE), position({ 0, 0, 0 }) {}
 

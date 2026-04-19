@@ -2,7 +2,7 @@
 #pragma once
 
 #include "raymath.h"
-#include "custom-color.hpp"
+#include "CustomColor.hpp"
 
 class Sphere {
 	public:

@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "utils.hpp"
+#include "Utils.hpp"
 
 // absorptionCoeff: absorption coefficient of volume
 // distance: thickness of volume

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "custom-color.hpp"
+#include "CustomColor.hpp"
 
 CustomColor::CustomColor() : r(0), g(0), b(0), a(1) {}
 
