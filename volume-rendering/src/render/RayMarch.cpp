@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "PointLight.hpp"
-#include "Sphere.hpp"
-#include "RandomNumberGenerator.hpp"
-#include "Noise.hpp"
+#include "scene_objects/Light.hpp"
+#include "scene_objects/Sphere.hpp"
+#include "math/RandomNumberGenerator.hpp"
+#include "math/Noise.hpp"
 
 static float smoothStep(float low, float high, float x) {
 	float t = std::clamp((x - low) / (high - low), 0.f, 1.f);
@@ -14,7 +14,7 @@ static float smoothStep(float low, float high, float x) {
 // - octaves: number of layers
 // - lacunarity: gap between successive frequencies
 // - h: fractal increment parameter
-static float sampleFBMDensity(const Vector3& point, const Vector3& center, const float& radius) {
+static float sampleFBMDensity(Vector3 point, Vector3 center, float radius) {
 	Vector3 vp = Vector3Subtract(point, center);
     Vector3 vpXForm;
 	int frame = 0;
@@ -43,7 +43,7 @@ static float sampleFBMDensity(const Vector3& point, const Vector3& center, const
     return std::max(0.f, fbmResult) * (1 - falloff);
 }
 
-static float samplePerlinNoiseDensity(const Vector3& point) {
+static float samplePerlinNoiseDensity(Vector3 point) {
 	float freq = 1.f;
 	return (1 + perlinNoise(point.x * freq, point.y * freq, point.z * freq)) * 0.5;
 }
@@ -54,7 +54,7 @@ static float samplePerlinNoiseDensity(const Vector3& point) {
 // - g = 0: equals to 1 / (4 * PI)
 // - 0 < g < 1: scattered forward
 // cosTheta: cosine of angle between light direction (object to light) and view direction (object to camera)
-static float henyeyGreensteinPhase(const float g, const float cosTheta) {
+static float henyeyGreensteinPhase(float g, float cosTheta) {
 	float denom = 1 + g * g - 2 * g * cosTheta;
 	return 1 / (4 * PI) * (1 - g * g) / (denom * sqrtf(denom));
 }
@@ -67,11 +67,12 @@ static float henyeyGreensteinPhase(const float g, const float cosTheta) {
 // - when light that is traveling to the eye scatters against a particle, sending a portion of light to the eye
 // - light is traveling towards you but some light is scattered in random directions, some will be in your direction
 
-CustomColor rayMarchBackward(const CustomColor& bgColor, const float stepSize, const float t0, const float t1, const Ray& ray, PointLight* pLight, Sphere* sphere) {
+CustomColor rayMarchBackward(CustomColor bgColor, const Light& light, const Sphere& sphere, float asymmetryFactor, float stepSize, float t0, float t1, const Ray& ray) {
 	const int steps = (int)((t1 - t0) / stepSize);
 	CustomColor finalTransmittedLightSourceColor;
 
-	const float extinctionCoeff = (sphere->absorptionCoeff + sphere->scatteringCoeff) * sphere->density;
+	const VolumeMaterial material = sphere.getMaterial();
+	const float extinctionCoeff = (material.absorptionCoeff + material.scatteringCoeff) * material.density;
 
 	// transmittance per step in the volume
 	const float stepVolTransmittance = exp(-stepSize * extinctionCoeff);
@@ -79,10 +80,7 @@ CustomColor rayMarchBackward(const CustomColor& bgColor, const float stepSize, c
 	// precalculate the final bg color that is transmitted through the volume
 	const CustomColor finalBGColor = bgColor * pow(stepVolTransmittance, steps);
 
-	// anisotropic / asymmetry factor for Henyey-Greenstein phase function
-	const float g = 0.5;
-
-	const Vector3 lightRayDir = { 0, 0, 1 };
+	const Vector3 lightRayDir = light.getDirection();
 
 	for (int step = 0; step < steps; step++) {
 		// t value of the light ray origin (steps start from t1 and go backward)
@@ -92,13 +90,13 @@ CustomColor rayMarchBackward(const CustomColor& bgColor, const float stepSize, c
 		float lightT0, lightT1;
 
 		// in-scattering
-		if (sphere->intersect(lightRay, lightT0, lightT1)) {
+		if (sphere.intersect(lightRay, lightT0, lightT1)) {
 			const float cosTheta = Vector3DotProduct(lightRay.direction, Vector3Scale(ray.direction, -1));
-			const float hg = henyeyGreensteinPhase(g, cosTheta);
+			const float hg = henyeyGreensteinPhase(asymmetryFactor, cosTheta);
 			// transmittance through the volume from the lightT1 (point where the light ray intersects the sphere) and the light ray origin
 			const float volTransmittance = exp(-lightT1 * extinctionCoeff);
 			// color of the transmitted / attenuated light that hits the light ray origin
-			const CustomColor transmittedLightSourceColor = pLight->color * stepSize * volTransmittance * sphere->scatteringCoeff * sphere->density * hg;
+			const CustomColor transmittedLightSourceColor = light.getColor() * stepSize * volTransmittance * material.scatteringCoeff * material.density * hg;
 
 			finalTransmittedLightSourceColor += transmittedLightSourceColor;
 		}
@@ -108,21 +106,21 @@ CustomColor rayMarchBackward(const CustomColor& bgColor, const float stepSize, c
 	return finalBGColor + finalTransmittedLightSourceColor;
 }
 
-CustomColor rayMarchForward(const CustomColor& bgColor, const float stepSize, const float t0, const float t1, const Ray& ray, PointLight* pLight, Sphere* sphere, RandomNumberGenerator& rng) {
+CustomColor rayMarchForward(CustomColor bgColor, const Light& light, const Sphere& sphere, float asymmetryFactor, float stepSize, float survivalWeight, float t0, float t1, const Ray& ray) {
+	RandomNumberGenerator rng;
+
 	const int steps = (int)((t1 - t0) / stepSize);
 	CustomColor finalTransmittedLightSourceColor;
 
-	const float extinctionCoeff = (sphere->absorptionCoeff + sphere->scatteringCoeff);
+	VolumeMaterial material = sphere.getMaterial();
+	const float extinctionCoeff = (material.absorptionCoeff + material.scatteringCoeff);
 
 	float accumulatedStepVolTransmittance = 1.f;
 
-	// anisotropic asymmetry factor for Henyey-Greenstein phase function
-	const float g = 0.2f;
+	const Vector3 lightRayDir = light.getDirection();
 
-	const Vector3 lightRayDir = { 0, -1, 1 };
-
-	// the higher the d value, the more often the ray marching will break
-	const int d = 10;
+	const Vector3 sphereCenter = sphere.getCenter();
+	const float sphereRadius = sphere.getRadius();
 
 	for (int step = 0; step < steps; step++) {
 		// t value of the light ray origin (steps start from t1 and go forward)
@@ -132,7 +130,7 @@ CustomColor rayMarchForward(const CustomColor& bgColor, const float stepSize, co
 		float lightT0, lightT1;
 
 		// sample density of the light ray origin using Perlin noise
-		float density = sampleFBMDensity(lightRayOrigin, sphere->center, sphere->radius);
+		float density = sampleFBMDensity(lightRayOrigin, sphereCenter, sphereRadius);
 
 		// transmittance per step in the volume
 		const float stepVolTransmittance = exp(-density * stepSize * extinctionCoeff);
@@ -140,9 +138,9 @@ CustomColor rayMarchForward(const CustomColor& bgColor, const float stepSize, co
 		accumulatedStepVolTransmittance *= stepVolTransmittance;
 
 		// in-scattering
-		if (sphere->intersect(lightRay, lightT0, lightT1)) {
+		if (sphere.intersect(lightRay, lightT0, lightT1)) {
 			const float cosTheta = Vector3DotProduct(lightRayDir, Vector3Scale(ray.direction, -1));
-			const float hg = henyeyGreensteinPhase(g, cosTheta);
+			const float hg = henyeyGreensteinPhase(asymmetryFactor, cosTheta);
 
 			// calculate the opticalDepth for the light ray (ray march along light ray)
 			const int opticalDepthSteps = (int)(lightT1 / stepSize);
@@ -151,14 +149,14 @@ CustomColor rayMarchForward(const CustomColor& bgColor, const float stepSize, co
 				const float sampleVectorT = (opticalDepthStep + 0.5) * stepSize;
 				const Vector3 sampleVector = Vector3Add(lightRayOrigin, Vector3Scale(lightRayDir, sampleVectorT));
 
-				opticalDepth += sampleFBMDensity(sampleVector, sphere->center, sphere->radius);
+				opticalDepth += sampleFBMDensity(sampleVector, sphereCenter, sphereRadius);
 			}
 
 			// transmittance through the volume from the lightT1 (point where the light ray intersects the sphere) and the light ray origin
 			const float volTransmittance = exp(-opticalDepth * stepSize * extinctionCoeff);
 
 			// color of the transmitted / attenuated light that hits the light ray origin
-			const CustomColor transmittedLightSourceColor = pLight->color * stepSize * volTransmittance * sphere->scatteringCoeff * density * hg;
+			const CustomColor transmittedLightSourceColor = light.getColor() * stepSize * volTransmittance * material.scatteringCoeff * density * hg;
 
 			finalTransmittedLightSourceColor += (transmittedLightSourceColor * accumulatedStepVolTransmittance);
 		}
@@ -166,10 +164,10 @@ CustomColor rayMarchForward(const CustomColor& bgColor, const float stepSize, co
 		// Russian roulette method (optimization)
 		// If the random number is large than 1/d break, else compensate for the lost light packets by * d
 		if (accumulatedStepVolTransmittance < 1e-3) {
-			if (rng.uniform<float>(0.f, 1.f) > 1 / d) {
+			if (rng.uniform<float>(0.f, 1.f) > 1 / survivalWeight) {
 				break;
 			} else {
-				accumulatedStepVolTransmittance *= d;
+				accumulatedStepVolTransmittance *= survivalWeight;
 			}
 		}
 	}

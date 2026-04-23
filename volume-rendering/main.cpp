@@ -1,83 +1,53 @@
 ﻿#include "pch.h"
-#include "CustomColor.hpp"
-#include "Sphere.hpp"
-#include "PointLight.hpp"
-#include "Utils.hpp"
-#include "RayMarch.hpp"
-#include "RandomNumberGenerator.hpp"
-#include "Timer.hpp"
+#include "utils/CustomColor.hpp"
+#include "scene_objects/Sphere.hpp"
+#include "scene_objects/Light.hpp"
+#include "scene_objects/CustomCamera.hpp"
+#include "render/RayMarch.hpp"
+#include "math/RandomNumberGenerator.hpp"
+#include "utils/Timer.hpp"
+#include "core/Application.hpp"
+#include "scene/Scene.hpp"
+#include "render/Renderer.hpp"
+#include "shared/Types.h"
 
 int main()
 {
-	constexpr int screenWidth = 800;
-    constexpr int screenHeight = 400;
-    constexpr int screenMidX = screenWidth * 0.5;
-    constexpr int screenMidY = screenHeight * 0.5;
+    // screen dimensions { width, height }
+    Vector2 screenDimension = { 800, 400 };
 
-    CustomColor bgColor(BLACK);
+    // app
+    Application app(screenDimension, "Volume Rendering");
 
-    constexpr float sphereAbsorptionCoeff = 0.3;
-    constexpr float sphereScatteringCoeff = 0.3;
-    constexpr float sphereDensity = 0.05f;
- 
-    CustomColor sphereColor(BLUE);
-    const Vector3 spherePos = { 0, 0, -20 };
-    constexpr float sphereRadius = 10.f;
+    // scene
+    Scene scene(BLACK);
+    scene.addLight(std::unique_ptr<Light>(new Light({ 20, 20, 20, 1 }, { 0, 0, 1 })));
+    scene.addSceneObject(std::unique_ptr<SceneObject>(new Sphere(PURPLE, 0.3f, 0.3f, 0.05f, { 0, 0, -20 }, 3.f)));
 
-    CustomColor pointLightColor({ 20, 20, 20, 1 });
-    const Vector3 pointLightPos = { 0, 5, -20 };
+    // camera
+    CustomCamera camera({ 0, 0, 0 });
 
-    Vector3 rayOrigin = { 0, 0, 0 };
-
-    std::unique_ptr<Sphere> sphere(new Sphere(sphereAbsorptionCoeff, sphereScatteringCoeff, sphereDensity, sphereColor, spherePos, sphereRadius));
-    std::unique_ptr<PointLight> pLight(new PointLight(pointLightColor, pointLightPos));
-
+    // algorithm
+    enum AlgType algType = AlgType::RAY_MARCH_FORWARD;
     const float stepSize = 0.5f;
 
-    RandomNumberGenerator rng;
+    // renderer
+    Renderer renderer;
 
     Timer timer;
-
-    // 1. Initialize window
-    InitWindow(screenWidth, screenHeight, "Volume Rendering");
-
-    // 2. Generate single color background image
-    Image image = GenImageColor(screenWidth, screenHeight, bgColor.getColor());
-
-    // 3. Draw image
-    for (int row = 0; row < screenHeight; row++) {
-		for (int col = 0; col < screenWidth; col++) {
-            Vector3 rayDir = computeRayDir(col, row, screenWidth, screenHeight);
-            Ray ray = { rayOrigin, rayDir };
-            CustomColor finalColor;
-            float t0, t1;
-
-            if (sphere->intersect(ray, t0, t1)) {
-                //finalColor = sphere->computeVolumeColor(bgColor, t0, t1);
-                //finalColor = rayMarchBackward(bgColor, stepSize, t0, t1, ray, pLight.get(), sphere.get());
-                finalColor = rayMarchForward(bgColor, stepSize, t0, t1, ray, pLight.get(), sphere.get(), rng);
-            } else {
-                finalColor = bgColor;
-            }
-
-			ImageDrawPixel(&image, col, row, finalColor.getColor());
-		}
-    }
+    Texture2D textureResult = renderer.render(screenDimension, scene, camera, algType);
     timer.stop();
 
-    Texture2D texture = LoadTextureFromImage(image);
-    UnloadImage(image);
+    Vector2 texturePos = {
+		(screenDimension.x - textureResult.width) * 0.5f,
+		(screenDimension.y - textureResult.height) * 0.5f
+	};
 
-    Vector2 texturePos = { (screenMidX - texture.width * 0.5f), (screenMidY - texture.height * 0.5f) };
+    CustomColor textureTint = WHITE;
 
-    SetTargetFPS(60);
+    app.run([&]() {
+        app.drawTexture(scene.getBGColor(), textureResult, texturePos, textureTint);
+	});
 
-    while (!WindowShouldClose())
-    {
-        BeginDrawing();
-            ClearBackground(bgColor.getColor());
-			DrawTextureV(texture, texturePos, RAYWHITE);
-        EndDrawing();
-    }
 	return 0;
 }

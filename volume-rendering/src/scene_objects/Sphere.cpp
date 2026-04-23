@@ -1,20 +1,13 @@
 #include "pch.h"
 #include "Sphere.hpp"
-#include "Utils.hpp"
 
 Sphere::Sphere() :
-	absorptionCoeff(0.1f),
-	scatteringCoeff(0.1f),
-	density(1.f),
-	color(PURPLE),
+	material({ WHITE, 0.1f, 0.1f, 1.f }),
 	center({ 0, 0, -10 }),
 	radius(5.f) {}
 
-Sphere::Sphere(float absorptionCoeff, float scatteringCoeff, float density, CustomColor color, Vector3 center, float radius) :
-	absorptionCoeff(absorptionCoeff),
-	scatteringCoeff(scatteringCoeff),
-	density(density),
-	color(color),
+Sphere::Sphere(CustomColor color, float absorptionCoeff, float scatteringCoeff, float density, Vector3 center, float radius) :
+	material({ color, absorptionCoeff, scatteringCoeff, density }),
 	center(center),
 	radius(radius) {}
 
@@ -55,7 +48,14 @@ bool Sphere::intersect(const Ray& ray, float& t0, float& t1) const {
     return true;
 }
 
-CustomColor Sphere::computeVolumeColor(const CustomColor& bgColor, float t0, float t1) const {
-	const float distance = t1 - t0;
-	return calculateBGColorThroughVolume(bgColor, this->color, this->absorptionCoeff, distance);
+VolumeMaterial Sphere::getMaterial() const {
+    return this->material;
+}
+
+Vector3 Sphere::getCenter() const {
+	return this->center;
+}
+
+float Sphere::getRadius() const {
+	return this->radius;
 }
