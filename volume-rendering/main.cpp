@@ -10,6 +10,7 @@
 #include "scene/Scene.hpp"
 #include "render/Renderer.hpp"
 #include "shared/Types.h"
+#include "scene_objects/Plane.hpp"
 
 int main()
 {
@@ -23,6 +24,7 @@ int main()
     Scene scene(BLACK);
     scene.addLight(std::unique_ptr<Light>(new Light({ 20, 20, 20, 1 }, { 0, 0, 1 })));
     scene.addSceneObject(std::unique_ptr<SceneObject>(new Sphere(PURPLE, 0.3f, 0.3f, 0.05f, { 0, 0, -20 }, 3.f)));
+    scene.addSceneObject(std::unique_ptr<SceneObject>(new Plane(PURPLE, { 0, -1, 0 }, 0)));
 
     // camera
     CustomCamera camera({ 0, 0, 0 });
