@@ -5,13 +5,14 @@
 #include "scene_objects/Sphere.hpp"
 #include "render/SimpleCalcVolumeColor.hpp"
 #include "scene_objects/Plane.hpp"
+#include "scene_objects/Atmosphere.hpp"
 
 Renderer::Renderer() {}
 
 Texture2D Renderer::render(Vector2 screenDimension, const Scene& scene, const CustomCamera& cam, AlgType algType) {
-	Light* light = (scene.getLights())[0].get();
+	const Atmosphere& atmosphere = scene.getAtmosphere();
+	const Light& light = *(scene.getLights())[0];
 	Sphere* sphere = dynamic_cast<Sphere *>((scene.getSceneObjects())[0].get());
-	Plane* plane = dynamic_cast<Plane *>((scene.getSceneObjects())[1].get());
 	float asymmetryFactor = 0.2f;
 	float stepSize = 0.1f;
 	int survivalWeight = 10;
@@ -26,12 +27,12 @@ Texture2D Renderer::render(Vector2 screenDimension, const Scene& scene, const Cu
 			break;
         case AlgType::RAY_MARCH_BACKWARD:
 			renderAlg = [&](CustomColor bgColor, const Ray& ray, float t0, float t1) {
-                return rayMarchBackward(bgColor, *light, *sphere, asymmetryFactor, stepSize, t0, t1, ray);
+                return rayMarchBackward(bgColor, light, *sphere, asymmetryFactor, stepSize, t0, t1, ray);
 			};
             break;
         case AlgType::RAY_MARCH_FORWARD:
 			renderAlg = [&](CustomColor bgColor, const Ray& ray, float t0, float t1) {
-                return rayMarchForward(bgColor, *light, *sphere, asymmetryFactor, stepSize, survivalWeight, t0, t1, ray);
+                return rayMarchForward(bgColor, light, *sphere, asymmetryFactor, stepSize, survivalWeight, t0, t1, ray);
 			};
             break;
     }
@@ -50,10 +51,8 @@ Texture2D Renderer::render(Vector2 screenDimension, const Scene& scene, const Cu
             CustomColor bgColor;
             CustomColor finalColor;
 
-			if (plane->intersect(ray, t0)) {
-                bgColor = plane->getColor();
-            } else {
-                bgColor = scene.getBGColor();
+            if (atmosphere.intersect(ray, t0, t1)) {
+                bgColor = atmosphere.calcIncidentLight(ray, t0, t1);
             }
 
             if (sphere->intersect(ray, t0, t1)) {

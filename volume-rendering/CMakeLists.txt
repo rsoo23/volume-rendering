@@ -19,8 +19,9 @@ add_executable(volume-rendering
 	"src/shared/Types.h"
 	"src/utils/CustomColor.cpp"
 	"src/utils/Timer.cpp"
+	"src/scene_objects/Atmosphere.cpp"
 	"src/scene_objects/Plane.cpp"
-)
+ )
 
 target_include_directories(volume-rendering PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/src

@@ -64,6 +64,16 @@ CustomColor& CustomColor::operator*=(const CustomColor& c2) {
     return *this;
 }
 
+CustomColor CustomColor::operator/(const CustomColor& c2) const {
+    CustomColor newColor(
+		this->r / c2.r,
+		this->g / c2.g,
+		this->b / c2.b,
+        1.f
+    );
+    return newColor;
+}
+
 CustomColor& CustomColor::operator*=(float scaleFactor) {
     this->r *= scaleFactor;
     this->g *= scaleFactor;

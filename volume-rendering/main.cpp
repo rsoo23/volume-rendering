@@ -11,6 +11,7 @@
 #include "render/Renderer.hpp"
 #include "shared/Types.h"
 #include "scene_objects/Plane.hpp"
+#include "scene_objects/Atmosphere.hpp"
 
 int main()
 {
@@ -22,12 +23,13 @@ int main()
 
     // scene
     Scene scene(BLACK);
+    scene.setAtmosphere(std::unique_ptr<Atmosphere>(new Atmosphere({ 0, 0, -1 }, { 0, 0, 0 })));
+    const Atmosphere& atmosphere = scene.getAtmosphere();
     scene.addLight(std::unique_ptr<Light>(new Light({ 20, 20, 20, 1 }, { 0, 0, 1 })));
-    scene.addSceneObject(std::unique_ptr<SceneObject>(new Sphere(PURPLE, 0.3f, 0.3f, 0.05f, { 0, 0, -20 }, 3.f)));
-    scene.addSceneObject(std::unique_ptr<SceneObject>(new Plane(PURPLE, { 0, -1, 0 }, 0)));
+    scene.addSceneObject(std::unique_ptr<SceneObject>(new Sphere(PURPLE, 0.3f, 0.3f, 0.05f, { 0, atmosphere.earthRadius + 40005, -10 }, 3.f)));
 
     // camera
-    CustomCamera camera({ 0, 0, 0 });
+    CustomCamera camera({ 0, atmosphere.earthRadius + 40000, 0 });
 
     // algorithm
     enum AlgType algType = AlgType::RAY_MARCH_FORWARD;

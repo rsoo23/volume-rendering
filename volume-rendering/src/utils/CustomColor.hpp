@@ -14,6 +14,7 @@ class CustomColor {
 		CustomColor& operator+=(const CustomColor& c2);
 		CustomColor operator*(const CustomColor& c2) const;
 		CustomColor& operator*=(const CustomColor& c2);
+		CustomColor operator/(const CustomColor& c2) const;
 		CustomColor& operator*=(float scaleFactor);
 		CustomColor operator*(float scaleFactor) const;
 		Color getColor() const;

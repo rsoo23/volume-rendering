@@ -7,6 +7,10 @@ Scene::Scene(CustomColor bgColor): bgColor(bgColor) {}
 
 Scene::~Scene() {};
 
+void Scene::setAtmosphere(std::unique_ptr<Atmosphere> atmosphere) {
+	this->atmosphere = std::move(atmosphere);
+};
+
 void Scene::addLight(std::unique_ptr<Light> light) {
 	this->lights.push_back(std::move(light));
 };
@@ -17,6 +21,10 @@ void Scene::addSceneObject(std::unique_ptr<SceneObject> sceneObj) {
 
 CustomColor Scene::getBGColor() const {
 	return this->bgColor;
+}
+
+const Atmosphere& Scene::getAtmosphere() const {
+	return *(this->atmosphere);
 }
 
 const std::vector<std::unique_ptr<SceneObject>>& Scene::getSceneObjects() const {
