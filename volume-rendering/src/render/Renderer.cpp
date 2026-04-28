@@ -51,8 +51,13 @@ Texture2D Renderer::render(Vector2 screenDimension, const Scene& scene, const Cu
             CustomColor bgColor;
             CustomColor finalColor;
 
-            if (atmosphere.intersect(ray, t0, t1)) {
-                bgColor = atmosphere.calcIncidentLight(ray, t0, t1);
+            if (atmosphere.intersect(ray, t0, t1, atmosphere.atmosphereRadius)) {
+                bgColor = atmosphere.calcIncidentLight(ray, t1);
+            }
+
+            if (atmosphere.intersect(ray, t0, t1, atmosphere.earthRadius) && t1 > 0) {
+                float tMax = std::max(0.f, t0);
+                bgColor = atmosphere.calcIncidentLight(ray, tMax);
             }
 
             if (sphere->intersect(ray, t0, t1)) {

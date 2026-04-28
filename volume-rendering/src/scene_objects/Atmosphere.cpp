@@ -20,9 +20,10 @@ Atmosphere::Atmosphere(Vector3 sunDirection, Vector3 center):
 const Vector3 Atmosphere::rayleightScatteringCoefficients({ 3.8e-6f, 13.5e-6f, 33.1e-6f });
 const Vector3 Atmosphere::mieScatteringCoefficients({ 21e-6f, 21e-6f, 21e-6f }); 
 
-CustomColor Atmosphere::calcIncidentLight(const Ray& ray, float t0, float t1) const {
-	const float steps = 5;
-	const int stepSize = t1 / steps;
+CustomColor Atmosphere::calcIncidentLight(const Ray& ray, float t1) const {
+	const float primaryRaySteps = 16;
+	const float sunlightRaySteps = 8;
+	const float stepSize = t1 /primaryRaySteps;
 	const float sunIntensity = 750.f;
 	Vector3 finalRayleighTransmittanceSum({ 0, 0, 0 }), finalMieTransmittanceSum({ 0, 0, 0 });
 	float rayleighPrimaryRayTransmittance = 0, miePrimaryRayTransmittance = 0;
@@ -31,8 +32,8 @@ CustomColor Atmosphere::calcIncidentLight(const Ray& ray, float t0, float t1) co
 	// Mie Phase Function g
 	float asymmetryFactor = 0.76f;
 
-	for (int step = 0; step < steps; step++) {
-		const float sampleT = (step + 0.5) * stepSize;
+	for (int step = 0; step < primaryRaySteps; step++) {
+		const float sampleT = (step + 0.5f) * stepSize;
 		const Vector3 samplePos = Vector3Add(ray.position, Vector3Scale(ray.direction, sampleT));
 		const Ray sunlightRay = { samplePos, this->sunDirection };
 		float sunlightT0, sunlightT1;
@@ -49,9 +50,10 @@ CustomColor Atmosphere::calcIncidentLight(const Ray& ray, float t0, float t1) co
 		float rayleighSunlightTransmittance = 0, mieSunlightTransmittance = 0; 
 
 		// sample sunlight ray
-		if (this->intersect(sunlightRay, sunlightT0, sunlightT1)) {
-			for (int sunlightStep = 0; sunlightStep < steps; sunlightStep++) {
-				const float sunlightSampleT = (sunlightStep + 0.5) * stepSize;
+		if (this->intersect(sunlightRay, sunlightT0, sunlightT1, this->atmosphereRadius)) {
+			const float sunlightStepSize = sunlightT1 / sunlightRaySteps;
+			for (int sunlightStep = 0; sunlightStep < sunlightRaySteps; sunlightStep++) {
+				const float sunlightSampleT = (sunlightStep + 0.5f) * sunlightStepSize;
 				const Vector3 sunlightSamplePos = Vector3Add(samplePos, Vector3Scale(this->sunDirection, sunlightSampleT));
 
 				const float sunlightSampleAltitude = Vector3Length(sunlightSamplePos) - this->earthRadius;
@@ -81,15 +83,15 @@ CustomColor Atmosphere::calcIncidentLight(const Ray& ray, float t0, float t1) co
 		)
 	);
 	finalColor = { finalVector.x, finalVector.y, finalVector.z, 1 };
-	return this->toneMapExtended(finalColor * sunIntensity, 1);
+	return this->toneMap(finalColor * sunIntensity);
 }
 
-bool Atmosphere::intersect(const Ray& ray, float& t0, float& t1) const {
+bool Atmosphere::intersect(const Ray& ray, float& t0, float& t1, float radius) const {
 	Vector3 oc = Vector3Subtract(ray.position, this->center);
 
 	float a = Vector3DotProduct(ray.direction, ray.direction);
 	float b = 2 * Vector3DotProduct(ray.direction, oc);
-	float c = Vector3DotProduct(oc, oc) - this->atmosphereRadius * this->atmosphereRadius;
+	float c = Vector3DotProduct(oc, oc) - radius * radius;
 
 	float discriminant = b * b - 4 * a * c;
 

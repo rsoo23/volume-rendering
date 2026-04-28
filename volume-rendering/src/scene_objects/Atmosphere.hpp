@@ -10,8 +10,8 @@ class Atmosphere {
 		Atmosphere();
 		Atmosphere(Vector3 sunDirection, Vector3 center);
 
-		CustomColor calcIncidentLight(const Ray& ray, float t0, float t1) const;
-		bool intersect(const Ray& ray, float& t0, float& t1) const;
+		CustomColor calcIncidentLight(const Ray& ray, float t1) const;
+		bool intersect(const Ray& ray, float& t0, float& t1, float radius) const;
 
 		Vector3 sunDirection;
 		float earthRadius;
