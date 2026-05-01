@@ -6,8 +6,8 @@ Sphere::Sphere() :
 	center({ 0, 0, -10 }),
 	radius(5.f) {}
 
-Sphere::Sphere(CustomColor color, float absorptionCoeff, float scatteringCoeff, float density, Vector3 center, float radius) :
-	material({ color, absorptionCoeff, scatteringCoeff, density }),
+Sphere::Sphere(const VolumeMaterial& mat, Vector3 center, float radius) :
+	material(mat),
 	center(center),
 	radius(radius) {}
 

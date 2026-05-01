@@ -16,9 +16,18 @@ class Scene {
 		void		addSceneObject(std::unique_ptr<SceneObject> sceneObj);
 		CustomColor getBGColor() const;
 		
-		const Atmosphere&									getAtmosphere() const;
+		Atmosphere*											getAtmosphere() const;
 		const std::vector<std::unique_ptr<SceneObject>>&	getSceneObjects() const;
 		const std::vector<std::unique_ptr<Light>>&			getLights() const;
+
+		template<typename T>
+		T* findFirst() const {
+			for (auto& obj : sceneObjects) {
+				if (auto* p = dynamic_cast<T*>(obj.get()))
+					return p;
+			}
+			return nullptr;
+		}
 
 	private:
 		CustomColor									bgColor;

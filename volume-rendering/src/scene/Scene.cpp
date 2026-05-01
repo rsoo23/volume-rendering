@@ -23,8 +23,8 @@ CustomColor Scene::getBGColor() const {
 	return this->bgColor;
 }
 
-const Atmosphere& Scene::getAtmosphere() const {
-	return *(this->atmosphere);
+Atmosphere* Scene::getAtmosphere() const {
+	return this->atmosphere.get();
 }
 
 const std::vector<std::unique_ptr<SceneObject>>& Scene::getSceneObjects() const {
