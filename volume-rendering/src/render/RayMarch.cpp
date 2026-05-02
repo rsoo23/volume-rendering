@@ -25,7 +25,7 @@ namespace {
 		vp = Vector3Scale(vp, config.freq);
 
 		for (size_t k = 0; k < config.octaves; k++) {
-			fbmResult += perlinNoise(vp.x, vp.y, vp.z) * pow(config.lacunarity, -config.h * k);
+			fbmResult += perlinNoise<float>(vp.x, vp.y, vp.z) * pow(config.lacunarity, -config.h * k);
 			vp = Vector3Scale(vp, config.lacunarity);
 		}
 
@@ -35,7 +35,7 @@ namespace {
 
 	float samplePerlinNoiseDensity(Vector3 point) {
 		float freq = 1.f;
-		return (1 + perlinNoise(point.x * freq, point.y * freq, point.z * freq)) * 0.5f;
+		return (1 + perlinNoise<float>(point.x * freq, point.y * freq, point.z * freq)) * 0.5f;
 	}
 
 	// 1 / (4 * PI): represents the phase function where all out-scattered directions are equally likely to be chosen
