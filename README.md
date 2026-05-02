@@ -4,6 +4,23 @@
 This project mainly focuses on rendering the atmosphere and cloud like objects by using volume rendering techniques, C++ and Raylib as the graphics library.
 
 ## Showcase
+Assuming Earth's radius is 6,360km and the height of the atmosphere is 60km:
+
+Camera Altitude: 10m
+<img width="797" height="395" alt="image" src="https://github.com/user-attachments/assets/bc881c5e-73e8-42f8-a935-82a2920fc5ed" />
+
+Camera Altitude: 2km
+<img width="798" height="397" alt="image" src="https://github.com/user-attachments/assets/93ede305-f224-4549-a15e-f1915fe44387" />
+
+Camera Altitude: 40km + Cloud
+<img width="891" height="448" alt="image" src="https://github.com/user-attachments/assets/055f4830-e095-47cc-b6fa-401049aad81d" />
+
+Camera Altitude: 50km
+<img width="800" height="400" alt="image" src="https://github.com/user-attachments/assets/eecc727c-db63-4743-91a3-bc8ac30c21a2" />
+
+Camera Altitude: 60km
+<img width="798" height="399" alt="image" src="https://github.com/user-attachments/assets/21c616d1-baaa-472e-a73e-ade606183895" />
+
 
 ## Things learnt:
 - Beer's Law
