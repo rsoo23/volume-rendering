@@ -21,6 +21,19 @@ Camera Altitude: 50km
 Camera Altitude: 60km
 <img width="798" height="399" alt="image" src="https://github.com/user-attachments/assets/21c616d1-baaa-472e-a73e-ade606183895" />
 
+## Building
+
+**Requirements**
+- Visual Studio 2022 with the **Desktop development with C++** workload
+- CMake (bundled with Visual Studio)
+
+**Steps**
+1. Clone the repository
+git clone https://github.com/yourname/yourrepo.git
+2. Open the cloned folder in Visual Studio via **File → Open → Folder**
+3. Set configuration to **Release x64** in the toolbar
+4. Build with **Ctrl+Shift+B** or **Build → Build All**
+5. Start without debugging with the **Play Button** or **Ctrl + F5**
 
 ## Things learnt:
 - Beer's Law
